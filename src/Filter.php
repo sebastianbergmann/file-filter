@@ -24,7 +24,7 @@ use function str_starts_with;
 final readonly class Filter
 {
     /**
-     * @var list<array{regex: string, prefix: string, suffix: string}>
+     * @var list<array{regularExpression: string, prefix: string, suffix: string}>
      */
     private array $includeDirectoryMatchers;
 
@@ -34,7 +34,7 @@ final readonly class Filter
     private array $includeFilesMap;
 
     /**
-     * @var list<array{regex: string, prefix: string, suffix: string}>
+     * @var list<array{regularExpression: string, prefix: string, suffix: string}>
      */
     private array $excludeDirectoryMatchers;
 
@@ -44,10 +44,10 @@ final readonly class Filter
     private array $excludeFilesMap;
 
     /**
-     * @param list<array{regex: string, prefix: string, suffix: string}> $includeDirectoryMatchers
-     * @param array<string, true>                                        $includeFilesMap
-     * @param list<array{regex: string, prefix: string, suffix: string}> $excludeDirectoryMatchers
-     * @param array<string, true>                                        $excludeFilesMap
+     * @param list<array{regularExpression: string, prefix: string, suffix: string}> $includeDirectoryMatchers
+     * @param array<string, true>                                                    $includeFilesMap
+     * @param list<array{regularExpression: string, prefix: string, suffix: string}> $excludeDirectoryMatchers
+     * @param array<string, true>                                                    $excludeFilesMap
      */
     public function __construct(array $includeDirectoryMatchers, array $includeFilesMap, array $excludeDirectoryMatchers, array $excludeFilesMap)
     {
@@ -106,13 +106,13 @@ final readonly class Filter
     }
 
     /**
-     * @param list<array{regex: string, prefix: string, suffix: string}> $matchers
+     * @param list<array{regularExpression: string, prefix: string, suffix: string}> $matchers
      */
     private function matchesDirectory(array $matchers, string $directory, string $filename): bool
     {
         foreach ($matchers as $matcher) {
-            // Check if directory matches the regex pattern
-            if (preg_match($matcher['regex'], $directory . '/') !== 1) {
+            // Check if directory matches the regular expression
+            if (preg_match($matcher['regularExpression'], $directory . '/') !== 1) {
                 continue;
             }
 

@@ -40,7 +40,7 @@ final readonly class Builder
     /**
      * @param list<array{path: non-empty-string, prefix: string, suffix: string}> $directories
      *
-     * @return list<array{regex: string, prefix: string, suffix: string}>
+     * @return list<array{regularExpression: string, prefix: string, suffix: string}>
      */
     private function matchers(array $directories): array
     {
@@ -48,9 +48,9 @@ final readonly class Builder
 
         foreach ($directories as $directory) {
             $matchers[] = [
-                'regex'  => $this->globToRegularExpression($directory['path']),
-                'prefix' => $directory['prefix'],
-                'suffix' => $directory['suffix'],
+                'regularExpression' => $this->globToRegularExpression($directory['path']),
+                'prefix'            => $directory['prefix'],
+                'suffix'            => $directory['suffix'],
             ];
         }
 

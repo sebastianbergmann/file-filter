@@ -20,7 +20,7 @@ final class FilterTest extends TestCase
     public function testAcceptsFileMatchingIncludeDirectoryMatcher(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
             [],
             [],
@@ -32,7 +32,7 @@ final class FilterTest extends TestCase
     public function testAcceptsFileInNestedDirectoryMatchingIncludeDirectoryMatcher(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
             [],
             [],
@@ -44,7 +44,7 @@ final class FilterTest extends TestCase
     public function testRejectsFileNotMatchingAnyIncludeDirectoryMatcher(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
             [],
             [],
@@ -80,7 +80,7 @@ final class FilterTest extends TestCase
     public function testRejectsFileInExcludeFilesMap(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
             [],
             ['/src/Legacy.php' => true],
@@ -92,9 +92,9 @@ final class FilterTest extends TestCase
     public function testRejectsFileMatchingExcludeDirectoryMatcher(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
-            [['regex' => '#^/src/vendor(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src/vendor(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
         );
 
@@ -104,7 +104,7 @@ final class FilterTest extends TestCase
     public function testExcludeFilesMapTakesPrecedenceOverIncludeDirectoryMatcher(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
             [],
             ['/src/Excluded.php' => true],
@@ -119,7 +119,7 @@ final class FilterTest extends TestCase
         $filter = new Filter(
             [],
             ['/src/vendor/Special.php' => true],
-            [['regex' => '#^/src/vendor(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src/vendor(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
         );
 
@@ -129,7 +129,7 @@ final class FilterTest extends TestCase
     public function testRejectsFilesInHiddenDirectories(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
             [],
             [],
@@ -141,7 +141,7 @@ final class FilterTest extends TestCase
     public function testRejectsFilesInNestedHiddenDirectories(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
             [],
             [],
@@ -153,7 +153,7 @@ final class FilterTest extends TestCase
     public function testRejectsFilesInGitDirectory(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
             [],
             [],
@@ -165,7 +165,7 @@ final class FilterTest extends TestCase
     public function testRejectsHiddenFilesInDirectory(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
             [],
             [],
@@ -177,7 +177,7 @@ final class FilterTest extends TestCase
     public function testAcceptsFilesWithDotInMiddleOfFilename(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
             [],
             [],
@@ -189,7 +189,7 @@ final class FilterTest extends TestCase
     public function testMatcherWithPrefixRequirement(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => 'Test', 'suffix' => '']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => 'Test', 'suffix' => '']],
             [],
             [],
             [],
@@ -202,7 +202,7 @@ final class FilterTest extends TestCase
     public function testMatcherWithSuffixRequirement(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '.php']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '.php']],
             [],
             [],
             [],
@@ -215,7 +215,7 @@ final class FilterTest extends TestCase
     public function testMatcherWithPrefixAndSuffixRequirement(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/tests(?:/|$)#', 'prefix' => 'Test', 'suffix' => '.php']],
+            [['regularExpression' => '#^/tests(?:/|$)#', 'prefix' => 'Test', 'suffix' => '.php']],
             [],
             [],
             [],
@@ -229,9 +229,9 @@ final class FilterTest extends TestCase
     public function testExcludeMatcherWithPrefixAndSuffix(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '.php']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '.php']],
             [],
-            [['regex' => '#^/src/generated(?:/|$)#', 'prefix' => 'Gen', 'suffix' => '.php']],
+            [['regularExpression' => '#^/src/generated(?:/|$)#', 'prefix' => 'Gen', 'suffix' => '.php']],
             [],
         );
 
@@ -244,8 +244,8 @@ final class FilterTest extends TestCase
     {
         $filter = new Filter(
             [
-                ['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => ''],
-                ['regex' => '#^/lib(?:/|$)#', 'prefix' => '', 'suffix' => ''],
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => ''],
+                ['regularExpression' => '#^/lib(?:/|$)#', 'prefix' => '', 'suffix' => ''],
             ],
             [],
             [],
@@ -260,11 +260,11 @@ final class FilterTest extends TestCase
     public function testMultipleExcludeDirectoryMatchers(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
             [
-                ['regex' => '#^/src/vendor(?:/|$)#', 'prefix' => '', 'suffix' => ''],
-                ['regex' => '#^/src/cache(?:/|$)#', 'prefix' => '', 'suffix' => ''],
+                ['regularExpression' => '#^/src/vendor(?:/|$)#', 'prefix' => '', 'suffix' => ''],
+                ['regularExpression' => '#^/src/cache(?:/|$)#', 'prefix' => '', 'suffix' => ''],
             ],
             [],
         );
@@ -294,7 +294,7 @@ final class FilterTest extends TestCase
     public function testMultipleExcludeFiles(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
             [],
             [
@@ -318,7 +318,7 @@ final class FilterTest extends TestCase
     public function testRegexPatternWithGlobstar(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src/(?:[^/]+/)*tests(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src/(?:[^/]+/)*tests(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
             [],
             [],
@@ -333,7 +333,7 @@ final class FilterTest extends TestCase
     public function testRegexPatternWithSingleStar(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src/[^/]*/models(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src/[^/]*/models(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
             [],
             [],
@@ -346,7 +346,7 @@ final class FilterTest extends TestCase
     public function testRegexPatternWithQuestionMark(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src/v[^/]/api(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src/v[^/]/api(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
             [],
             [],
@@ -359,7 +359,7 @@ final class FilterTest extends TestCase
     public function testCombinationOfIncludeDirectoriesAndFiles(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '.php']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '.php']],
             ['/config/bootstrap.php' => true],
             [],
             [],
@@ -373,9 +373,9 @@ final class FilterTest extends TestCase
     public function testCombinationOfExcludeDirectoriesAndFiles(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
-            [['regex' => '#^/src/vendor(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src/vendor(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             ['/src/Legacy.php' => true],
         );
 
@@ -388,8 +388,8 @@ final class FilterTest extends TestCase
     {
         $filter = new Filter(
             [
-                ['regex' => '#^/src(?:/|$)#', 'prefix' => 'A', 'suffix' => ''],
-                ['regex' => '#^/src(?:/|$)#', 'prefix' => 'B', 'suffix' => ''],
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => 'A', 'suffix' => ''],
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => 'B', 'suffix' => ''],
             ],
             [],
             [],
@@ -415,7 +415,7 @@ final class FilterTest extends TestCase
     public function testHiddenDirectoryCheckHappensFirst(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             ['/src/.hidden/explicit.php' => true],
             [],
             [],
@@ -427,7 +427,7 @@ final class FilterTest extends TestCase
     public function testDeepNestedHiddenDirectory(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
             [],
             [],
@@ -439,7 +439,7 @@ final class FilterTest extends TestCase
     public function testMatcherWithOnlyPrefix(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => 'Abstract', 'suffix' => '']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => 'Abstract', 'suffix' => '']],
             [],
             [],
             [],
@@ -453,7 +453,7 @@ final class FilterTest extends TestCase
     public function testMatcherWithOnlySuffix(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => 'Test.php']],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => 'Test.php']],
             [],
             [],
             [],
@@ -467,7 +467,7 @@ final class FilterTest extends TestCase
     public function testDirectoryAtRootLevel(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/(?:/|$)#', 'prefix' => '', 'suffix' => '.php']],
+            [['regularExpression' => '#^/(?:/|$)#', 'prefix' => '', 'suffix' => '.php']],
             [],
             [],
             [],
@@ -480,7 +480,7 @@ final class FilterTest extends TestCase
     public function testRootDirectoryDoesNotMatchSubdirectories(): void
     {
         $filter = new Filter(
-            [['regex' => '#^/(?:/|$)#', 'prefix' => '', 'suffix' => '.php']],
+            [['regularExpression' => '#^/(?:/|$)#', 'prefix' => '', 'suffix' => '.php']],
             [],
             [],
             [],
