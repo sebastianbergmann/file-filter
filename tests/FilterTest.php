@@ -488,4 +488,283 @@ final class FilterTest extends TestCase
 
         $this->assertFalse($filter->accepts('/src/Foo.php'));
     }
+
+    public function testIncludeFileWithEmptyExcludeDirectoryMatchers(): void
+    {
+        $filter = new Filter(
+            [],
+            ['/config/bootstrap.php' => true],
+            [],
+            [],
+        );
+
+        $this->assertTrue($filter->accepts('/config/bootstrap.php'));
+    }
+
+    public function testIncludeFileNotExcludedByDirectoryMatcherWhenDirectoryDoesNotMatch(): void
+    {
+        $filter = new Filter(
+            [],
+            ['/other/file.php' => true],
+            [['regularExpression' => '#^/src/vendor(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [],
+        );
+
+        $this->assertTrue($filter->accepts('/other/file.php'));
+    }
+
+    public function testIncludeFileNotExcludedByDirectoryMatcherWhenPrefixDoesNotMatch(): void
+    {
+        $filter = new Filter(
+            [],
+            ['/src/vendor/file.php' => true],
+            [['regularExpression' => '#^/src/vendor(?:/|$)#', 'prefix' => 'Gen', 'suffix' => '']],
+            [],
+        );
+
+        $this->assertTrue($filter->accepts('/src/vendor/file.php'));
+    }
+
+    public function testIncludeFileNotExcludedByDirectoryMatcherWhenSuffixDoesNotMatch(): void
+    {
+        $filter = new Filter(
+            [],
+            ['/src/vendor/file.xml' => true],
+            [['regularExpression' => '#^/src/vendor(?:/|$)#', 'prefix' => '', 'suffix' => '.php']],
+            [],
+        );
+
+        $this->assertTrue($filter->accepts('/src/vendor/file.xml'));
+    }
+
+    public function testIncludeDirectoryMatcherWithPrefixMatchAndEmptySuffix(): void
+    {
+        $filter = new Filter(
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => 'Foo', 'suffix' => '']],
+            [],
+            [],
+            [],
+        );
+
+        $this->assertTrue($filter->accepts('/src/FooBar.php'));
+    }
+
+    public function testExcludeDirectoryMatcherWithPrefixMatchButSuffixNotMatching(): void
+    {
+        $filter = new Filter(
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [],
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => 'Foo', 'suffix' => '.xml']],
+            [],
+        );
+
+        $this->assertTrue($filter->accepts('/src/FooBar.php'));
+    }
+
+    public function testExcludeDirectoryMatcherWithDirectoryNotMatchingButOtherConditionsMet(): void
+    {
+        $filter = new Filter(
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [],
+            [['regularExpression' => '#^/other(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [],
+        );
+
+        $this->assertTrue($filter->accepts('/src/Foo.php'));
+    }
+
+    public function testMultipleMatchersWhereFirstDoesNotMatchDirectoryButSecondDoes(): void
+    {
+        $filter = new Filter(
+            [
+                ['regularExpression' => '#^/other(?:/|$)#', 'prefix' => '', 'suffix' => ''],
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => ''],
+            ],
+            [],
+            [],
+            [],
+        );
+
+        $this->assertTrue($filter->accepts('/src/Foo.php'));
+    }
+
+    public function testMultipleMatchersWhereFirstMatchesDirectoryButNotPrefix(): void
+    {
+        $filter = new Filter(
+            [
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => 'Bar', 'suffix' => ''],
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => 'Foo', 'suffix' => ''],
+            ],
+            [],
+            [],
+            [],
+        );
+
+        $this->assertTrue($filter->accepts('/src/FooClass.php'));
+    }
+
+    public function testMultipleMatchersWhereFirstMatchesDirectoryAndPrefixButNotSuffix(): void
+    {
+        $filter = new Filter(
+            [
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => 'Foo', 'suffix' => '.xml'],
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => 'Foo', 'suffix' => '.php'],
+            ],
+            [],
+            [],
+            [],
+        );
+
+        $this->assertTrue($filter->accepts('/src/FooClass.php'));
+    }
+
+    public function testExcludeMatcherFirstDoesNotMatchDirectorySecondMatchesAll(): void
+    {
+        $filter = new Filter(
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [],
+            [
+                ['regularExpression' => '#^/other(?:/|$)#', 'prefix' => '', 'suffix' => ''],
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => ''],
+            ],
+            [],
+        );
+
+        $this->assertFalse($filter->accepts('/src/Foo.php'));
+    }
+
+    public function testExcludeMatcherFirstMatchesDirectoryButNotPrefixSecondMatchesAll(): void
+    {
+        $filter = new Filter(
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [],
+            [
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => 'Bar', 'suffix' => ''],
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => ''],
+            ],
+            [],
+        );
+
+        $this->assertFalse($filter->accepts('/src/FooClass.php'));
+    }
+
+    public function testExcludeMatcherFirstMatchesDirAndPrefixButNotSuffixSecondMatchesAll(): void
+    {
+        $filter = new Filter(
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [],
+            [
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => 'Foo', 'suffix' => '.xml'],
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => ''],
+            ],
+            [],
+        );
+
+        $this->assertFalse($filter->accepts('/src/FooClass.php'));
+    }
+
+    public function testIncludeFileExcludedByFirstMatcherAfterSecondDoesNotMatch(): void
+    {
+        $filter = new Filter(
+            [],
+            ['/src/FooClass.php' => true],
+            [
+                ['regularExpression' => '#^/other(?:/|$)#', 'prefix' => '', 'suffix' => ''],
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => ''],
+            ],
+            [],
+        );
+
+        $this->assertFalse($filter->accepts('/src/FooClass.php'));
+    }
+
+    public function testIncludeFileExcludedByMatcherAfterPrefixCheckFails(): void
+    {
+        $filter = new Filter(
+            [],
+            ['/src/FooClass.php' => true],
+            [
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => 'Bar', 'suffix' => ''],
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => ''],
+            ],
+            [],
+        );
+
+        $this->assertFalse($filter->accepts('/src/FooClass.php'));
+    }
+
+    public function testIncludeFileExcludedByMatcherAfterSuffixCheckFails(): void
+    {
+        $filter = new Filter(
+            [],
+            ['/src/FooClass.php' => true],
+            [
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => 'Foo', 'suffix' => '.xml'],
+                ['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => ''],
+            ],
+            [],
+        );
+
+        $this->assertFalse($filter->accepts('/src/FooClass.php'));
+    }
+
+    public function testNonHiddenDirectoryWithDotInName(): void
+    {
+        $filter = new Filter(
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [],
+            [],
+            [],
+        );
+
+        $this->assertTrue($filter->accepts('/src/app.module/Foo.php'));
+    }
+
+    public function testMatcherWithEmptyPrefixAndNonEmptySuffixThatMatches(): void
+    {
+        $filter = new Filter(
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '.php']],
+            [],
+            [],
+            [],
+        );
+
+        $this->assertTrue($filter->accepts('/src/Foo.php'));
+    }
+
+    public function testMatcherWithNonEmptyPrefixThatMatchesAndEmptySuffix(): void
+    {
+        $filter = new Filter(
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => 'Test', 'suffix' => '']],
+            [],
+            [],
+            [],
+        );
+
+        $this->assertTrue($filter->accepts('/src/TestFoo.php'));
+    }
+
+    public function testMatcherWithBothPrefixAndSuffixMatching(): void
+    {
+        $filter = new Filter(
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => 'Test', 'suffix' => '.php']],
+            [],
+            [],
+            [],
+        );
+
+        $this->assertTrue($filter->accepts('/src/TestFoo.php'));
+    }
+
+    public function testMatcherWithEmptyPrefixAndEmptySuffix(): void
+    {
+        $filter = new Filter(
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [],
+            [],
+            [],
+        );
+
+        $this->assertTrue($filter->accepts('/src/AnyFile.txt'));
+    }
 }
