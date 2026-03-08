@@ -138,19 +138,6 @@ final class FilterTest extends TestCase
         $this->assertFalse($filter->accepts('/src/.hidden/File.php'));
     }
 
-    public function testAcceptsFilesInHiddenDirectoriesWhenExcludeHiddenDirectoriesIsFalse(): void
-    {
-        $filter = new Filter(
-            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
-            [],
-            [],
-            [],
-            false,
-        );
-
-        $this->assertTrue($filter->accepts('/src/.hidden/File.php'));
-    }
-
     public function testRejectsFilesInNestedHiddenDirectories(): void
     {
         $filter = new Filter(
@@ -435,19 +422,6 @@ final class FilterTest extends TestCase
         );
 
         $this->assertFalse($filter->accepts('/src/.hidden/explicit.php'));
-    }
-
-    public function testExplicitlyIncludedFileInHiddenDirectoryAcceptedWhenExcludeHiddenDirectoriesIsFalse(): void
-    {
-        $filter = new Filter(
-            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
-            ['/src/.hidden/explicit.php' => true],
-            [],
-            [],
-            false,
-        );
-
-        $this->assertTrue($filter->accepts('/src/.hidden/explicit.php'));
     }
 
     public function testDeepNestedHiddenDirectory(): void

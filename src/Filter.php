@@ -42,7 +42,6 @@ final readonly class Filter
      * @var array<string, true>
      */
     private array $excludeFilesMap;
-    private bool $excludeHiddenDirectories;
 
     /**
      * @param list<array{regularExpression: string, prefix: string, suffix: string}> $includeDirectoryMatchers
@@ -50,13 +49,12 @@ final readonly class Filter
      * @param list<array{regularExpression: string, prefix: string, suffix: string}> $excludeDirectoryMatchers
      * @param array<string, true>                                                    $excludeFilesMap
      */
-    public function __construct(array $includeDirectoryMatchers, array $includeFilesMap, array $excludeDirectoryMatchers, array $excludeFilesMap, bool $excludeHiddenDirectories = true)
+    public function __construct(array $includeDirectoryMatchers, array $includeFilesMap, array $excludeDirectoryMatchers, array $excludeFilesMap)
     {
         $this->includeDirectoryMatchers = $includeDirectoryMatchers;
         $this->includeFilesMap          = $includeFilesMap;
         $this->excludeDirectoryMatchers = $excludeDirectoryMatchers;
         $this->excludeFilesMap          = $excludeFilesMap;
-        $this->excludeHiddenDirectories = $excludeHiddenDirectories;
     }
 
     /**
@@ -66,7 +64,7 @@ final readonly class Filter
     {
         $normalizedPath = str_replace(DIRECTORY_SEPARATOR, '/', $path);
 
-        if ($this->excludeHiddenDirectories && $this->isInHiddenDirectory($normalizedPath)) {
+        if ($this->isInHiddenDirectory($normalizedPath)) {
             return false;
         }
 

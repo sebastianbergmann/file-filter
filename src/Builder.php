@@ -27,14 +27,13 @@ final readonly class Builder
      * @param list<array{path: non-empty-string, prefix: string, suffix: string}> $excludeDirectories
      * @param list<non-empty-string>                                              $excludeFiles
      */
-    public function build(array $includeDirectories, array $includeFiles, array $excludeDirectories, array $excludeFiles, bool $excludeHiddenDirectories = true): Filter
+    public function build(array $includeDirectories, array $includeFiles, array $excludeDirectories, array $excludeFiles): Filter
     {
         return new Filter(
             $this->matchers($includeDirectories),
             $this->map($includeFiles),
             $this->matchers($excludeDirectories),
             $this->map($excludeFiles),
-            $excludeHiddenDirectories,
         );
     }
 
