@@ -11,12 +11,15 @@ namespace SebastianBergmann\FileFilter;
 
 use const DIRECTORY_SEPARATOR;
 use function array_key_exists;
+use function assert;
 use function basename;
 use function dirname;
 use function preg_match;
 use function str_ends_with;
 use function str_replace;
 use function str_starts_with;
+use function strlen;
+use function substr;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for this library
@@ -64,65 +67,55 @@ final readonly class Filter
     {
         $normalizedPath = str_replace(DIRECTORY_SEPARATOR, '/', $path);
 
-        if ($this->isInHiddenDirectory($normalizedPath)) {
-            return false;
-        }
-
         $directory = dirname($normalizedPath);
         $filename  = basename($normalizedPath);
 
-        // Check if explicitly excluded by file
         if (array_key_exists($normalizedPath, $this->excludeFilesMap)) {
             return false;
         }
 
-        // Check if explicitly included by file
         if (array_key_exists($normalizedPath, $this->includeFilesMap)) {
-            // Still need to check if excluded by directory
-            if ($this->matchesDirectory($this->excludeDirectoryMatchers, $directory, $filename)) {
+            if ($this->matchesDirectory($this->excludeDirectoryMatchers, $directory, $filename, false)) {
                 return false;
             }
 
             return true;
         }
 
-        // Check if included by directory
-        if (!$this->matchesDirectory($this->includeDirectoryMatchers, $directory, $filename)) {
+        if (!$this->matchesDirectory($this->includeDirectoryMatchers, $directory, $filename, true)) {
             return false;
         }
 
-        // Check if excluded by directory
-        if ($this->matchesDirectory($this->excludeDirectoryMatchers, $directory, $filename)) {
+        if ($this->matchesDirectory($this->excludeDirectoryMatchers, $directory, $filename, false)) {
             return false;
         }
 
         return true;
     }
 
-    private function isInHiddenDirectory(string $path): bool
-    {
-        // Check if any directory component starts with a dot
-        return (bool) preg_match('#/\.[^/]+/#', $path . '/');
-    }
-
     /**
      * @param list<array{regularExpression: string, prefix: string, suffix: string}> $matchers
      */
-    private function matchesDirectory(array $matchers, string $directory, string $filename): bool
+    private function matchesDirectory(array $matchers, string $directory, string $filename, bool $rejectHiddenSubdirectories): bool
     {
+        $directoryWithTrailingSlash = $directory . '/';
+
         foreach ($matchers as $matcher) {
-            // Check if directory matches the regular expression
-            if (preg_match($matcher['regularExpression'], $directory . '/') !== 1) {
+            if (preg_match($matcher['regularExpression'], $directoryWithTrailingSlash, $matches) !== 1) {
                 continue;
             }
 
-            // Check prefix
             if ($matcher['prefix'] !== '' && !str_starts_with($filename, $matcher['prefix'])) {
                 continue;
             }
 
-            // Check suffix
             if ($matcher['suffix'] !== '' && !str_ends_with($filename, $matcher['suffix'])) {
+                continue;
+            }
+
+            assert(isset($matches[0]));
+
+            if ($rejectHiddenSubdirectories && $this->isInHiddenSubdirectory($directoryWithTrailingSlash, $matches[0])) {
                 continue;
             }
 
@@ -130,5 +123,16 @@ final readonly class Filter
         }
 
         return false;
+    }
+
+    private function isInHiddenSubdirectory(string $directoryWithTrailingSlash, string $matchedPrefix): bool
+    {
+        $relativeDirectory = substr($directoryWithTrailingSlash, strlen($matchedPrefix));
+
+        if ($relativeDirectory === '') {
+            return false;
+        }
+
+        return preg_match('#(?:^|/)\.[^/]+/#', $relativeDirectory) === 1;
     }
 }

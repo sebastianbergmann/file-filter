@@ -162,7 +162,7 @@ final class FilterTest extends TestCase
         $this->assertFalse($filter->accepts('/src/.git/config'));
     }
 
-    public function testRejectsHiddenFilesInDirectory(): void
+    public function testAcceptsHiddenFilenameDirectlyInIncludeDirectoryRoot(): void
     {
         $filter = new Filter(
             [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
@@ -171,7 +171,7 @@ final class FilterTest extends TestCase
             [],
         );
 
-        $this->assertFalse($filter->accepts('/src/.htaccess'));
+        $this->assertTrue($filter->accepts('/src/.htaccess'));
     }
 
     public function testAcceptsFilesWithDotInMiddleOfFilename(): void
@@ -412,7 +412,7 @@ final class FilterTest extends TestCase
         $this->assertFalse($filter->accepts('/src/file.php'));
     }
 
-    public function testHiddenDirectoryCheckHappensFirst(): void
+    public function testExplicitlyIncludedFileIsAcceptedEvenInsideHiddenDirectory(): void
     {
         $filter = new Filter(
             [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
@@ -421,19 +421,91 @@ final class FilterTest extends TestCase
             [],
         );
 
-        $this->assertFalse($filter->accepts('/src/.hidden/explicit.php'));
+        $this->assertTrue($filter->accepts('/src/.hidden/explicit.php'));
     }
 
     public function testDeepNestedHiddenDirectory(): void
     {
         $filter = new Filter(
-            [['regularExpression' => '#^/(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [['regularExpression' => '#^/a(?:/|$)#', 'prefix' => '', 'suffix' => '']],
             [],
             [],
             [],
         );
 
         $this->assertFalse($filter->accepts('/a/b/c/.hidden/d/e/file.php'));
+    }
+
+    public function testAcceptsFileUnderIncludeDirectoryWithHiddenAncestor(): void
+    {
+        $filter = new Filter(
+            [['regularExpression' => '#^/home/user/\.config/project/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [],
+            [],
+            [],
+        );
+
+        $this->assertTrue($filter->accepts('/home/user/.config/project/src/Foo.php'));
+    }
+
+    public function testAcceptsDeeplyNestedFileUnderIncludeDirectoryWithHiddenAncestor(): void
+    {
+        $filter = new Filter(
+            [['regularExpression' => '#^/home/user/\.config/project/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [],
+            [],
+            [],
+        );
+
+        $this->assertTrue($filter->accepts('/home/user/.config/project/src/deep/nested/Foo.php'));
+    }
+
+    public function testRejectsHiddenSubdirectoryEvenWhenIncludeRootHasHiddenAncestor(): void
+    {
+        $filter = new Filter(
+            [['regularExpression' => '#^/home/user/\.config/project/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [],
+            [],
+            [],
+        );
+
+        $this->assertFalse($filter->accepts('/home/user/.config/project/src/.cache/Foo.php'));
+    }
+
+    public function testExplicitlyExcludedFileIsRejectedEvenInsideHiddenDirectory(): void
+    {
+        $filter = new Filter(
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [],
+            [],
+            ['/src/.hidden/excluded.php' => true],
+        );
+
+        $this->assertFalse($filter->accepts('/src/.hidden/excluded.php'));
+    }
+
+    public function testExplicitlyIncludedFileInsideHiddenDirectoryIsRejectedWhenDirectoryIsExcluded(): void
+    {
+        $filter = new Filter(
+            [],
+            ['/src/.hidden/explicit.php' => true],
+            [['regularExpression' => '#^/src/\.hidden(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [],
+        );
+
+        $this->assertFalse($filter->accepts('/src/.hidden/explicit.php'));
+    }
+
+    public function testRejectsFileNotIncludedByDirectoryMatcherEvenWhenPathContainsHiddenSegment(): void
+    {
+        $filter = new Filter(
+            [['regularExpression' => '#^/src(?:/|$)#', 'prefix' => '', 'suffix' => '']],
+            [],
+            [],
+            [],
+        );
+
+        $this->assertFalse($filter->accepts('/other/.hidden/Foo.php'));
     }
 
     public function testMatcherWithOnlyPrefix(): void
